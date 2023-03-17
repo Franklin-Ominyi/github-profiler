@@ -1,4 +1,4 @@
-# movie-review
+# github-profiler
 
 ## Project setup
 ```
