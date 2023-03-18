@@ -1,6 +1,9 @@
 <template>
 	<Loader v-if="loading" />
 	<div v-if="data" class="wrapper">
+		<router-link to="/" class="back-btn"
+			><i class="fa fa-arrow-left"></i> Back
+		</router-link>
 		<h3>Repository Details</h3>
 		<div class="details">
 			<p><span> Name:</span> {{ data.name }}</p>
@@ -12,8 +15,12 @@
 			<p><span> Size:</span> {{ data.size }}kb</p>
 			<p><span> Default branch:</span> {{ data.default_branch }}</p>
 			<p v-if="data.language"><span>Language:</span> {{ data.language }}</p>
-			<p><span> Created at:</span> {{ handleDate(data.created_at) }}</p>
-			<p><span> Updated at:</span> {{ handleDate(data.updated_at) }}</p>
+			<p>
+				<span> Created at:</span> {{ new Date(data.created_at).toDateString() }}
+			</p>
+			<p>
+				<span> Updated at:</span> {{ new Date(data.updated_at).toDateString() }}
+			</p>
 		</div>
 		<a :href="data.html_url" target="_blank" rel="noreferrer">
 			<i class="fa fa-2x fa-github"></i>
@@ -73,14 +80,8 @@ export default {
 
 		handleSearch();
 
-		const handleDate = (d) => {
-			let date = new Date(d);
-			return `${date.getDate()}/${date.getMonth()}/${date.getFullYear()}`;
-		};
-
 		return {
 			loading,
-			handleDate,
 			error,
 			data,
 		};
@@ -124,6 +125,19 @@ a {
 }
 a:hover {
 	color: darkblue;
+}
+
+a.back-btn {
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	gap: 4px;
+	margin-bottom: 15px;
+	color: #ed1c24;
+}
+
+a.back-btn:hover {
+	color: #ea838a;
 }
 
 @media screen and (max-width: 760px) {

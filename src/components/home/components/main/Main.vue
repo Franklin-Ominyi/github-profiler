@@ -5,6 +5,19 @@
 		<div class="details">
 			<div class="img-container">
 				<img :src="data.avatar_url" alt="Alegu Franklin" />
+				<div class="socials">
+					<a
+						href="https://www.linkedin.com/in/franklin-alegu-906b5a222/"
+						target="_blank"
+						><i class="fa fa-2x fa-linkedin-square"></i
+					></a>
+					<a href="https://www.twitter.com/franklin_ominyi" target="_blank"
+						><i class="fa fa-2x fa-twitter-square"></i
+					></a>
+					<a href="https://www.github.com/franklin-ominyi" target="_blank"
+						><i class="fa fa-2x fa-github-square"></i
+					></a>
+				</div>
 			</div>
 			<div class="user-details">
 				<div class="item">
@@ -33,7 +46,7 @@
 				</div>
 				<div class="item">
 					<p>Joined:</p>
-					<p>{{ date.getDate() }}/{{ date.getMonth() }}/{{ date.getFullYear() }}</p>
+					<p>{{ new Date(data.created_at).toDateString() }}</p>
 				</div>
 			</div>
 		</div>
@@ -57,9 +70,7 @@
 						</router-link>
 					</p>
 					<p class="date">
-						{{ new Date(item.created_at).getDate() }}/
-						{{ new Date(item.created_at).getMonth() }}/
-						{{ new Date(item.created_at).getFullYear() }}
+						{{ new Date(item.created_at).toDateString() }}
 					</p>
 				</div>
 			</div>
@@ -69,8 +80,20 @@
 					<button class="disabled" v-if="page == 1">Prev</button>
 					<button v-else @click="handlePrev">Prev</button>
 				</div>
+				<div
+					v-for="pageNum in pages"
+					@click="
+						() => {
+							if (page == pageNum) return;
+							handlePagination(pageNum);
+						}
+					"
+					:class="pageNum == page ? 'pagination-btn active' : 'pagination-btn'"
+				>
+					{{ pageNum }}
+				</div>
 				<div>
-					<button class="disabled" v-if="page >= Math.floor(data.public_repos / 10)">
+					<button class="disabled" v-if="page >= Math.ceil(data.public_repos / 10)">
 						Next
 					</button>
 
@@ -96,9 +119,9 @@ export default {
 		const data = ref(null);
 		const loading = ref(false);
 		const error = ref(false);
+		const pages = ref([]);
 		const page = ref(1);
 		const repositories = ref([]);
-		let date = ref();
 
 		// Scroll back top
 		watchEffect(() => {
@@ -125,13 +148,20 @@ export default {
 					`https://api.github.com/users/${input.value}`
 				);
 				data.value = response.data;
-				date.value = new Date(data.value.created_at);
 				let repos = await axios.get(
 					`${data.value.repos_url}?per_page=10&page=${page.value}&sort=created`
 				);
 
 				loading.value = false;
 				repositories.value = repos.data;
+
+				let tempPages = [];
+				if (data) {
+					for (let i = 0; i < Math.ceil(data?.value.public_repos / 10); i++) {
+						tempPages.push(i + 1);
+					}
+					pages.value = tempPages;
+				}
 			} catch (error) {
 				console.log({ error });
 				if (error.message == "Network Error") {
@@ -148,13 +178,16 @@ export default {
 		const handlePrev = () => (page.value = page.value - 1);
 		const handleNext = () => (page.value = page.value + 1);
 
+		const handlePagination = (num) => (page.value = num);
+
 		return {
 			input,
 			loading,
 			handleSearch,
-			date,
 			error,
 			data,
+			handlePagination,
+			pages,
 			page,
 			repositories,
 			handleNext,
@@ -171,18 +204,35 @@ export default {
 /* Details */
 .details {
 	width: 100%;
-	/* padding: 20px 0; */
 }
 
 .details .img-container {
 	height: 400px;
 	width: 400px;
+	margin-bottom: 50px;
 }
 
 .details .img-container img {
 	border-radius: 50%;
 	height: 100%;
 	width: 100%;
+}
+
+.details .socials {
+	margin: 10px 0;
+	width: 400px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 20px;
+}
+.details .socials a {
+	color: blue;
+	transition: color 0.6s ease;
+}
+
+.details .socials a:hover {
+	color: #ed1c24;
 }
 
 .details .user-details {
@@ -220,6 +270,10 @@ export default {
 		width: 90%;
 		height: fit-content;
 		margin: 0 auto;
+	}
+
+	.details .socials {
+		width: 100%;
 	}
 }
 
@@ -315,6 +369,28 @@ export default {
 	cursor: not-allowed;
 	color: #ea838a;
 	opacity: 0.6;
+}
+
+.pagination-btn {
+	height: 40px;
+	width: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #ed1c24;
+	color: #fff;
+	border-radius: 50%;
+	transition: background-color 0.6s ease;
+	cursor: pointer;
+}
+
+.pagination-btn:not(.pagination-btn.active):hover {
+	background-color: #9d6062;
+}
+
+.pagination-btn.active {
+	background-color: blue;
+	cursor: not-allowed;
 }
 
 @media screen and (max-width: 760px) {

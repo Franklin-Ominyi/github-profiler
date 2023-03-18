@@ -2,10 +2,10 @@
 	<div class="not-found">
 		<div class="not-found-card">
 			<div class="logo-container">
-				<!-- <img alt="logo" src="../../assets/logo.png" height="50px" /> -->
+				<img alt="404 error" :src="error404" height="100" />
 			</div>
 
-			<p class="not-found-title">404 Error</p>
+			<p class="not-found-title">Oops!</p>
 
 			<p class="not-found-desc">
 				The page your requested for does not exist. Use the link below to go back to
@@ -17,7 +17,14 @@
 </template>
 
 <script>
-export default {};
+import error404 from "../assets/404-error.png";
+export default {
+	setup() {
+		return {
+			error404,
+		};
+	},
+};
 </script>
 
 <style scoped>
